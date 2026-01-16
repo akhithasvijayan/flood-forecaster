@@ -1,11 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <title>Flood Risk Prediction</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
+
 <body>
-    
+
+<h2>Flood Risk Prediction System</h2>
+<p>Click on the map to select a location</p>
+
+<div id="map"></div>
+
+<label>Rainfall (mm):</label>
+<input type="number" id="rainfall"><br><br>
+
+<label>Water Level (cm):</label>
+<input type="number" id="waterlevel"><br><br>
+
+<button onclick="checkFloodRisk()">Check Flood Risk</button>
+
+<h3 id="output"></h3>
+
+<script>
+  let map;
+  let marker;
+  let selectedLat;
+  let selectedLng;
+
+  function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 20.5937, lng: 78.9629 },
+      zoom: 5
+    });
+
+    map.addListener("click", function(event) {
+      selectedLat = event.latLng.lat();
+      selectedLng = event.latLng.lng();
+
+      if (marker) marker.setMap(null);
+
+      marker = new google.maps.Marker({
+        position: event.latLng,
+        map: map
+      });
+    });
+  }
+
+  function checkFloodRisk() {
+    const rain = Number(document.getElementById("rainfall").value);
+    const water = Number(document.getElementById("waterlevel").value);
+
+    if (!marker) {
+      alert("Please select a location on the map");
+      return;
+    }
+
+    let risk;
+    let color;
+
+    if (rain > 80 && water > 50) {
+      risk = "HIGH FLOOD RISK";
+      color = "red";
+    } else if (rain > 50) {
+      risk = "MODERATE FLOOD RISK";
+      color = "yellow";
+    } else {
+      risk = "SAFE";
+      color = "green";
+    }
+
+    marker.setIcon(
+      "http://maps.google.com/mapfiles/ms/icons/" + color + "-dot.png"
+    );
+
+    document.getElementById("output").innerText =
+      "Risk Level: " + risk +
+      "\nLatitude: " + selectedLat.toFixed(4) +
+      "\nLongitude: " + selectedLng.toFixed(4);
+  }
+</script>
+
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkEpQBLFGlkIzP_39t2xik-YtOMN0E8e0&callback=initMap"
+  async defer>
+</script>
+
 </body>
 </html>
